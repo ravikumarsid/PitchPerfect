@@ -20,8 +20,8 @@ class RecordVC: UIViewController, AVAudioRecorderDelegate {
         super.viewDidLoad()
         configureUI(recordingState: false)
         recordingLabel.contentMode = UIViewContentMode.scaleAspectFit
-        recordButton.contentMode = UIViewContentMode.scaleAspectFit
-        stopRecordingButton.contentMode = UIViewContentMode.scaleAspectFit
+        recordButton.imageView?.contentMode = UIViewContentMode.scaleAspectFit
+        stopRecordingButton.imageView?.contentMode = UIViewContentMode.scaleAspectFit
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -30,7 +30,7 @@ class RecordVC: UIViewController, AVAudioRecorderDelegate {
     
     
     @IBAction func recordAudio(_ sender: Any) {
-    
+        
         configureUI(recordingState: true)
         
         let dirPath = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)[0] as String
@@ -60,23 +60,19 @@ class RecordVC: UIViewController, AVAudioRecorderDelegate {
     //MARK: - Audio Recorder Delegate
     func audioRecorderDidFinishRecording(_ recorder: AVAudioRecorder, successfully flag: Bool) {
         if flag {
-        performSegue(withIdentifier: "stopRecording", sender: audioRecorder.url)
+            performSegue(withIdentifier: "stopRecording", sender: audioRecorder.url)
         } else {
-            print("recording was not successfull")
+            let alert = UIAlertController(title: "Recording failed", message: "There was a problem with recording audio", preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: NSLocalizedString("OK", comment: "Default action"), style: .default, handler: {_ in NSLog("The \"OK\" alert occurred.")}))
+            self.present(alert, animated: true, completion: nil)
         }
     }
     
     //MARK: - Configure UI buttons state when active and passive
     func configureUI(recordingState: Bool){
-        if recordingState {
-            recordingLabel.text = "Recording in progress"
-            stopRecordingButton.isEnabled = true
-            recordButton.isEnabled = false
-        } else {
-            recordingLabel.text = "Tap to record"
-            stopRecordingButton.isEnabled = false
-            recordButton.isEnabled = true
-        }
+        recordingLabel.text = recordingState ? "Recording in progress" : "Tap on record"
+        stopRecordingButton.isEnabled = recordingState
+        recordButton.isEnabled = !recordingState
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
